@@ -1,8 +1,5 @@
 #include "buffer.h"
 
-#undef MAX_BUFFER_SIZE
-#define MAX_BUFFER_SIZE 16
-
 #include "assert.h"
 #include "netinet/in.h"
 #include "string.h"
@@ -12,7 +9,7 @@
 #define ERROR_POS 3
 
 int main() {
-  struct hsbuffer* buffer = hsbuffer_init();
+  struct hsbuffer* buffer = hsbuffer_init(16);
 
   /* Basic tests */
   assert(buffer);

@@ -20,10 +20,6 @@
 #define HSEVENT_HUP   2 // EPOLLHUP
 #define HSEVENT_ERR   3 // EPOLLERR
 
-#define HSEVENT_ADD 4 // EPOLL_CTL_ADD
-#define HSEVENT_DEL 5 // EPOLL_CTL_DEL
-#define HSEVENT_MOD 6 // EPOLL_CTL_MOD 
-
 /**
  * @brief The polling unit in the event loop.
  * 
@@ -39,9 +35,21 @@
  * and the caller should be responsible for checking whether this pointer is legal.
  * 
  */
+
 struct hsevent;
 
-typedef void (*hsevent_cb)(int sockfd, struct hsbuffer *buffer);
+typedef void (*hsevent_cb)(struct hsevent *event);
+struct hsevent {
+  int sockfd;                       // Associated socket
+  struct hsbuffer *inbound;         // Input buffer, read data from socket
+  struct hsbuffer *outbound;        // Output buffer, write data to socket
+  uint32_t events;                  // Types of events monitored
+  struct hsevent_base *event_base;  // Point to the hsevent_base that polls the hsevent
+  hsevent_cb read_cb;               // Callback function for EPOLLIN
+  hsevent_cb write_cb;              // Callback function for EPOLLOUT
+  hsevent_cb hup_cb;                // Callback function for EPOLLHUP
+  hsevent_cb err_cb;                // Callback function for EPOLLERR
+};
 
 /**
  * @brief Responsible for polling the struct hsevent and opening the event loop.

@@ -14,11 +14,12 @@
 
 #include "stddef.h"
 #include "sys/types.h"
+#include "stdint.h"
 
 #define READ_POS 0
 #define WRITE_POS 1
 
-#define MAX_BUFFER_SIZE 8192
+#define HS_BUFFER_SIZE 8192
 
 /**
  * @brief A buffer that can be used for network IO.
@@ -41,10 +42,12 @@ struct hsbuffer;
  * The only reason this function failed is out of memory. 
  * If this function returns a null pointer, the ENOMEM error needs to be handled.
  * 
+ * @param[in] buffer_size The initial capacity of struct hsbuffer.
+ * 
  * @return A pointer to the allocated hsbuffer, or NULL if the request failed.
  * 
  */
-struct hsbuffer* hsbuffer_init();
+struct hsbuffer* hsbuffer_init(uint32_t buffer_size);
 
 /**
  * @brief Free the hsbuffer pointed to by ptr.

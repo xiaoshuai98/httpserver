@@ -20,17 +20,17 @@ struct hsbuffer {
   size_t capacity;      // The maximum number of bytes that the hsbuffer can hold
 };
 
-struct hsbuffer* hsbuffer_init() {
+struct hsbuffer* hsbuffer_init(uint32_t buffer_size) {
   struct hsbuffer *ptr = (struct hsbuffer*)malloc(sizeof(struct hsbuffer));
   if (!ptr) {
     return NULL;
   }
-  ptr->data = (char*)malloc(MAX_BUFFER_SIZE + 1);   // Reserve a space for the null terminator
+  ptr->data = (char*)malloc(buffer_size + 1);   // Reserve a space for the null terminator
   if (!ptr->data) {
     free(ptr);
     return NULL;
   }
-  ptr->capacity = MAX_BUFFER_SIZE;
+  ptr->capacity = buffer_size;
   ptr->used_length = 0;
   ptr->read_pos = 0;
   ptr->write_pos = 0;

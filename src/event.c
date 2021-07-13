@@ -10,20 +10,9 @@
 
 #include "sys/epoll.h"
 #include "string.h"
+#include "stdlib.h"
 
 #define MAXFD 1024
-
-struct hsevent {
-  int sockfd;                       // Associated socket
-  struct hsbuffer *inbound;         // Input buffer, read data from socket
-  struct hsbuffer *outbound;        // Output buffer, write data to socket
-  uint32_t events;                  // Types of events monitored
-  struct hsevent_base *event_base;  // Point to the hsevent_base that polls the hsevent
-  hsevent_cb read_cb;               // Callback function for EPOLLIN
-  hsevent_cb write_cb;              // Callback function for EPOLLOUT
-  hsevent_cb hup_cb;                // Callback function for EPOLLHUP
-  hsevent_cb err_cb;                // Callback function for EPOLLERR
-};
 
 struct hsevent_base {
   int epollfd;
@@ -36,8 +25,8 @@ struct hsevent* hsevent_init(int sockfd, int events, struct hsevent_base *event_
   if (event == NULL) {
     return event;
   }
-  event->inbound = hsbuffer_init();
-  event->outbound = hsbuffer_init();
+  event->inbound = hsbuffer_init(HS_BUFFER_SIZE);
+  event->outbound = hsbuffer_init(HS_BUFFER_SIZE);
   if (!event->inbound || !event->outbound) {
     free(event->inbound);
     free(event->outbound);
@@ -48,6 +37,9 @@ struct hsevent* hsevent_init(int sockfd, int events, struct hsevent_base *event_
   event->events = events;
   if (event->events) {
     event->event_base = event_base;
+    if (event->event_base) {
+      hsevent_base_update(EPOLL_CTL_ADD, event, event_base);
+    }
   }
 
   return event;
@@ -62,7 +54,7 @@ void hsevent_free(struct hsevent *event) {
 void hsevent_update(struct hsevent *event, int events) {
   event->events = events;
   if (event->event_base) {
-    hsevent_base_update(HSEVENT_MOD, event, event->event_base);
+    hsevent_base_update(EPOLL_CTL_MOD, event, event->event_base);
   }
 }
 
@@ -95,6 +87,7 @@ struct hsevent_base* hsevent_base_init() {
   if (!base) {
     return base;
   }
+  base->epollfd = epoll_create1(0);
   memset(base->activate_events, 0, MAXFD * sizeof(struct epoll_event));
   for (int i = 0; i < MAXFD; i++) {
     base->sockets[i] = NULL;
@@ -110,33 +103,39 @@ void hsevent_base_free(struct hsevent_base *base) {
 void hsevent_base_update(int op, struct hsevent *event, struct hsevent_base *base) {
   struct epoll_event ev;
   ev.events = event->events;
+  ev.data.fd = event->sockfd;
   epoll_ctl(base->epollfd, op, event->sockfd, &ev);
+  if (op == EPOLL_CTL_ADD) {
+    base->sockets[event->sockfd] = event;
+  } else if (op == EPOLL_CTL_DEL) {
+    base->sockets[event->sockfd] = NULL;
+  }
 }
 
 void hsevent_base_loop(struct hsevent_base *base) {
   while (1) {
-    int nready = epoll_wait(base->epollfd, &base->activate_events, MAXFD, -1);
+    int nready = epoll_wait(base->epollfd, base->activate_events, MAXFD, -1);
     for (int i = 0; i < nready; i++) {
       int sockfd = base->activate_events[i].data.fd;
       int events = base->activate_events[i].events;
       struct hsevent *activate_event = base->sockets[sockfd];
       if (events & EPOLLERR) {
         if (activate_event->err_cb) {
-          activate_event->err_cb(sockfd, NULL);
+          activate_event->err_cb(activate_event);
         }
         return ;
       } else if(events & EPOLLHUP) {
         if (activate_event->hup_cb) {
-          activate_event->hup_cb(sockfd, NULL);
+          activate_event->hup_cb(activate_event);
         }
         return ;
       } else if(events & EPOLLIN) {
         if (activate_event->read_cb) {
-          activate_event->read_cb(sockfd, activate_event->inbound);
+          activate_event->read_cb(activate_event);
         }
       } else if(events & EPOLLOUT) {
         if (activate_event->write_cb) {
-          activate_event->write_cb(sockfd, activate_event->outbound);
+          activate_event->write_cb(activate_event);
         }
       }
     }
