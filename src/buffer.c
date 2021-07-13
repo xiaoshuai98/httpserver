@@ -12,8 +12,6 @@
 #include "stdlib.h"
 #include "sys/socket.h"
 
-#define MAX_BUFFER_SIZE 16
-
 struct hsbuffer {
   char* data;           // Point to the memory allocated for the hsbuffer
   size_t read_pos;      // Readable position in the hsbuffer
