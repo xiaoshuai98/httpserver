@@ -12,5 +12,7 @@ data = s.recv(32).decode();
 assert(data == '1234567812345678');
 
 s.send('56781234567812345678'.encode());
+data = s.recv(18).decode();
+assert(data == '123456781234567812');
 data = s.recv(32).decode();
-assert(data == '123456781234567812345678');
+assert(data == '345678');

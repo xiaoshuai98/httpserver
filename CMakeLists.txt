@@ -20,7 +20,7 @@ endif()
 # Set the compilation options for code coverage
 option(CMAKE_C_COVERAGE "Enable Code Coverage" ON)
 if (CMAKE_C_COVERAGE)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -coverage")
 endif()
 
 # Compile the test program

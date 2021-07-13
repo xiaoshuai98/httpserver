@@ -8,7 +8,6 @@
 
 #define ERROR_POS 3
 
-// TODO(qds): Add tests to increase code coverage.
 int main() {
   struct hsbuffer* buffer = hsbuffer_init();
 
@@ -56,15 +55,22 @@ int main() {
   assert(hsbuffer_remain(buffer) == 16);
 
   sleep(2);
+  hsbuffer_expand(buffer, 4);
+  assert(hsbuffer_capacity(buffer) == 16);
   hsbuffer_expand(buffer, 32);
   assert(hsbuffer_capacity(buffer) == 32);
   hsbuffer_recv(conn_sockfd, buffer, 100);
   assert(hsbuffer_length(buffer) == 24);
   assert(hsbuffer_remain(buffer) == 8);
 
-  hsbuffer_send(conn_sockfd, buffer, 100);
+  hsbuffer_send(conn_sockfd, buffer, 18);
+  assert(hsbuffer_length(buffer) == 24);
+  assert(hsbuffer_remain(buffer) == 8);
+  assert(hsbuffer_readable(buffer) == 6);
+  hsbuffer_send(conn_sockfd, buffer, 32);
   assert(hsbuffer_length(buffer) == 0);
   assert(hsbuffer_remain(buffer) == 32);
+  assert(hsbuffer_readable(buffer) == 0);
 
   hsbuffer_free(buffer);
   return 0;
