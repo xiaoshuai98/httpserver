@@ -6,7 +6,6 @@
  * 
  * @details 
  * This file declares some useful utility functions and macros.
- * 
  */
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))

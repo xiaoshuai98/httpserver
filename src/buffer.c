@@ -3,7 +3,6 @@
  * @author Quan.Dashuai
  * @version 1.0
  * @copyright GNU AFFERO GENERAL PUBLIC LICENSE Version3
- * 
  */
 
 #include "buffer.h"

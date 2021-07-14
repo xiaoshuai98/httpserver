@@ -5,9 +5,8 @@
  * @copyright GNU AFFERO GENERAL PUBLIC LICENSE Version3
  * 
  * @details 
- * This file declares some structures and functions. 
- * These structures and functions are used to implement an asynchronous event loop.
- * 
+ * This file declares some structs and functions. 
+ * These structs and functions are used to implement an asynchronous event loop.
  */
 
 #ifndef HS_EVENT
@@ -33,7 +32,6 @@
  * @note
  * Some functions require a pointer to hsevent as parameter, 
  * and the caller should be responsible for checking whether this pointer is legal.
- * 
  */
 
 struct hsevent;
@@ -63,7 +61,6 @@ struct hsevent {
  * @note
  * Some functions require a pointer to hsevent_base as parameter, 
  * and the caller should be responsible for checking whether this pointer is legal.
- * 
  */
 struct hsevent_base;
 
@@ -78,15 +75,13 @@ struct hsevent_base;
  * @param[in] event_base The struct hsevent_base to which struct hsevent belongs.
  * 
  * @return A pointer to the allocated struct hsevent, or NULL if failed.
- * 
  */
 struct hsevent* hsevent_init(int sockfd, int events, struct hsevent_base* event_base);
 
 /**
  * @brief Free the memory space of a struct hsevent.
  * 
- * @param[in] event A pointer to the allocated struct hsevent.
- * 
+ * @param[in] event A pointer to the allocated struct hsevent. 
  */
 void hsevent_free(struct hsevent *event);
 
@@ -95,7 +90,6 @@ void hsevent_free(struct hsevent *event);
  * 
  * @param[in] event A pointer to the allocated struct hsevent.
  * @param[in] events The events of interest to the caller.
- * 
  */
 void hsevent_update(struct hsevent *event, int events);
 
@@ -105,7 +99,6 @@ void hsevent_update(struct hsevent *event, int events);
  * @param[in] event A pointer to the allocated struct hsevent.
  * @param[in] event_type Event monitored.
  * @param[in] event_cb The call back function, can be NULL.
- * 
  */
 void hsevent_update_cb(struct hsevent *event, int event_type, hsevent_cb event_cb);
 
@@ -113,7 +106,6 @@ void hsevent_update_cb(struct hsevent *event, int event_type, hsevent_cb event_c
  * @brief Initialize a hsevent_base. 
  * 
  * @return A pointer to the allocated struct hsevent_base, or NULL if failed.
- * 
  */
 struct hsevent_base* hsevent_base_init();
 
@@ -121,7 +113,6 @@ struct hsevent_base* hsevent_base_init();
  * @brief Free the memory space of a struct hsevent_base.
  * 
  * @param[in] event_base A pointer to the allocated struct hsevent_base.
- * 
  */
 void hsevent_base_free(struct hsevent_base *event_base);
 
@@ -131,7 +122,6 @@ void hsevent_base_free(struct hsevent_base *event_base);
  * @param[in] op The operation to be performed on struct hsevent_base.
  * @param[in] event The target of the operation.
  * @param[in] event_base The target of the operation.
- * 
  */
 void hsevent_base_update(int op, 
                          struct hsevent *event,
@@ -141,7 +131,6 @@ void hsevent_base_update(int op,
  * @brief Start the event loop.
  * 
  * @param[in] event_base A pointer to the allocated struct hsevent_base.
- * 
  */
 void hsevent_base_loop(struct hsevent_base *event_base);
 

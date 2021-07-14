@@ -6,7 +6,6 @@
  * 
  * @details 
  * This file declares a struct hsbuffer and some functions related to the struct. 
- * 
  */
 
 #ifndef HS_BUFFER
@@ -31,7 +30,6 @@
  * @note
  * All functions require a pointer to hsbuffer as parameter, 
  * and the caller should be responsible for checking whether this pointer is legal.
- * 
  */
 struct hsbuffer;
 
@@ -45,7 +43,6 @@ struct hsbuffer;
  * @param[in] buffer_size The initial capacity of struct hsbuffer.
  * 
  * @return A pointer to the allocated hsbuffer, or NULL if the request failed.
- * 
  */
 struct hsbuffer* hsbuffer_init(uint32_t buffer_size);
 
@@ -53,7 +50,6 @@ struct hsbuffer* hsbuffer_init(uint32_t buffer_size);
  * @brief Free the hsbuffer pointed to by ptr.
  * 
  * @param[in] ptr A pointer to the allocated hsbuffer.
- * 
  */
 void hsbuffer_free(struct hsbuffer *ptr);
 
@@ -64,7 +60,6 @@ void hsbuffer_free(struct hsbuffer *ptr);
  * @param[in] pos_type The type of hsbuffer position, READ_POS or WRITE_POS.
  * 
  * @return A pointer to readable or writeable position, or NULL if pos_type is invalid.
- * 
  */
 char* hsbuffer_pos(struct hsbuffer *ptr, int pos_type);
 
@@ -74,7 +69,6 @@ char* hsbuffer_pos(struct hsbuffer *ptr, int pos_type);
  * @param[in] ptr A pointer to the allocated hsbuffer.
  * 
  * @return The size of the hsbuffer that has been used.
- * 
  */
 size_t hsbuffer_length(const struct hsbuffer *ptr);
 
@@ -84,7 +78,6 @@ size_t hsbuffer_length(const struct hsbuffer *ptr);
  * @param[in] ptr A pointer to the allocated hsbuffer.
  * 
  * @return The capacity of the hsbuffer.
- * 
  */
 size_t hsbuffer_capacity(const struct hsbuffer *ptr);
 
@@ -94,7 +87,6 @@ size_t hsbuffer_capacity(const struct hsbuffer *ptr);
  * @param[in] ptr A pointer to the allocated hsbuffer.
  * 
  * @return The remain writeable memory space of the hsbuffer.
- * 
  */
 size_t hsbuffer_remain(const struct hsbuffer *ptr);
 
@@ -104,7 +96,6 @@ size_t hsbuffer_remain(const struct hsbuffer *ptr);
  * @param[in] ptr A pointer to the allocated hsbuffer.
  * 
  * @return The number of readable bytes of the hsbuffer.
- * 
  */
 size_t hsbuffer_readable(const struct hsbuffer *ptr);
 
@@ -116,7 +107,6 @@ size_t hsbuffer_readable(const struct hsbuffer *ptr);
  * @param[in] length The maximum length of message received from the socket.
  * 
  * @return The number of bytes received, or -1 if an error occured.
- * 
  */
 ssize_t hsbuffer_recv(int sockfd, struct hsbuffer *ptr, size_t length);
 
@@ -128,7 +118,6 @@ ssize_t hsbuffer_recv(int sockfd, struct hsbuffer *ptr, size_t length);
  * @param[in] length The maximum length of message send to the socket.
  * 
  * @return The number of bytes sent, or -1 if an error occured.
- * 
  */
 ssize_t hsbuffer_send(int sockfd, struct hsbuffer *ptr, size_t length);
 
@@ -141,7 +130,6 @@ ssize_t hsbuffer_send(int sockfd, struct hsbuffer *ptr, size_t length);
  * 
  * @param[in] ptr A pointer to the allocated hsbuffer.
  * @param[in] new_capacity The new capacity after increasing the hsbuffer.
- * 
  */
 void hsbuffer_expand(struct hsbuffer *ptr, size_t new_capacity);
 
@@ -154,7 +142,6 @@ void hsbuffer_expand(struct hsbuffer *ptr, size_t new_capacity);
  * 
  * @param[in] ptr A pointer to the allocated hsbuffer.
  * @param[in] length The size of the readable space consumed in the hsbuffer.
- * 
  */
 void hsbuffer_consume(struct hsbuffer *ptr, size_t length);
 
