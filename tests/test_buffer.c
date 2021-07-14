@@ -24,7 +24,7 @@ int main() {
   /* Create socket */
   int i = 1;
   int server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEPORT, &i, 0);
+  setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEPORT, &i, sizeof(int));
   struct sockaddr_in servaddr;
   memset(&servaddr, 0, sizeof(struct sockaddr_in));
   servaddr.sin_family = AF_INET;

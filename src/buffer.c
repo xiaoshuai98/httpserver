@@ -39,6 +39,9 @@ struct hsbuffer* hsbuffer_init(uint32_t buffer_size) {
 }
 
 void hsbuffer_free(struct hsbuffer *ptr) {
+  if (!ptr) {
+    return ;
+  }
   if (ptr->data) {
     free(ptr->data);
   }

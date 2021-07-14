@@ -17,7 +17,7 @@
 
 #define HSEVENT_READ  0 // EPOLLIN
 #define HSEVENT_WRITE 1 // EPOLLOUT
-#define HSEVENT_HUP   2 // EPOLLHUP
+#define HSEVENT_RDHUP 2 // EPOLLRDHUP
 #define HSEVENT_ERR   3 // EPOLLERR
 
 /**
@@ -47,7 +47,7 @@ struct hsevent {
   struct hsevent_base *event_base;  // Point to the hsevent_base that polls the hsevent
   hsevent_cb read_cb;               // Callback function for EPOLLIN
   hsevent_cb write_cb;              // Callback function for EPOLLOUT
-  hsevent_cb hup_cb;                // Callback function for EPOLLHUP
+  hsevent_cb rdhup_cb;              // Callback function for EPOLLHUP
   hsevent_cb err_cb;                // Callback function for EPOLLERR
 };
 
@@ -144,5 +144,8 @@ void hsevent_base_update(int op,
  * 
  */
 void hsevent_base_loop(struct hsevent_base *event_base);
+
+/* For debug */
+void hsevent_base_exit(struct hsevent_base *event_base);
 
 #endif  // HS_EVENT

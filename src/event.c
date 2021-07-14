@@ -18,6 +18,7 @@ struct hsevent_base {
   int epollfd;
   struct epoll_event activate_events[MAXFD];
   struct hsevent *sockets[MAXFD];
+  int exit; // For debug
 };
 
 struct hsevent* hsevent_init(int sockfd, int events, struct hsevent_base *event_base) {
@@ -28,8 +29,8 @@ struct hsevent* hsevent_init(int sockfd, int events, struct hsevent_base *event_
   event->inbound = hsbuffer_init(HS_BUFFER_SIZE);
   event->outbound = hsbuffer_init(HS_BUFFER_SIZE);
   if (!event->inbound || !event->outbound) {
-    free(event->inbound);
-    free(event->outbound);
+    hsbuffer_free(event->inbound);
+    hsbuffer_free(event->outbound);
     free(event);
     return NULL;
   }
@@ -46,8 +47,8 @@ struct hsevent* hsevent_init(int sockfd, int events, struct hsevent_base *event_
 }
 
 void hsevent_free(struct hsevent *event) {
-  free(event->inbound);
-  free(event->outbound);
+  hsbuffer_free(event->inbound);
+  hsbuffer_free(event->outbound);
   free(event);
 }
 
@@ -68,8 +69,8 @@ void hsevent_update_cb(struct hsevent *event, int event_type, hsevent_cb event_c
       event->write_cb = event_cb;
       break;
     }
-    case HSEVENT_HUP: {
-      event->hup_cb = event_cb;
+    case HSEVENT_RDHUP: {
+      event->rdhup_cb = event_cb;
       break;
     }
     case HSEVENT_ERR: {
@@ -88,6 +89,7 @@ struct hsevent_base* hsevent_base_init() {
     return base;
   }
   base->epollfd = epoll_create1(0);
+  base->exit = 0;
   memset(base->activate_events, 0, MAXFD * sizeof(struct epoll_event));
   for (int i = 0; i < MAXFD; i++) {
     base->sockets[i] = NULL;
@@ -114,6 +116,11 @@ void hsevent_base_update(int op, struct hsevent *event, struct hsevent_base *bas
 
 void hsevent_base_loop(struct hsevent_base *base) {
   while (1) {
+    /* For debug */
+    if (base->exit) {
+      return ;
+    }
+
     int nready = epoll_wait(base->epollfd, base->activate_events, MAXFD, -1);
     for (int i = 0; i < nready; i++) {
       int sockfd = base->activate_events[i].data.fd;
@@ -123,12 +130,12 @@ void hsevent_base_loop(struct hsevent_base *base) {
         if (activate_event->err_cb) {
           activate_event->err_cb(activate_event);
         }
-        return ;
-      } else if(events & EPOLLHUP) {
-        if (activate_event->hup_cb) {
-          activate_event->hup_cb(activate_event);
+        continue;
+      } else if(events & EPOLLRDHUP) {
+        if (activate_event->rdhup_cb) {
+          activate_event->rdhup_cb(activate_event);
         }
-        return ;
+        continue;
       } else if(events & EPOLLIN) {
         if (activate_event->read_cb) {
           activate_event->read_cb(activate_event);
@@ -140,4 +147,8 @@ void hsevent_base_loop(struct hsevent_base *base) {
       }
     }
   }
+}
+
+void hsevent_base_exit(struct hsevent_base *base) {
+  base->exit = 1;
 }

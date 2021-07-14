@@ -6,7 +6,23 @@
 #include "string.h"
 #include "stdio.h"
 #include "assert.h"
-// TODO(qds): Handling connection closed event。
+#include "unistd.h"
+
+#define MAX_CONN_NUM 10
+
+int num_of_conn = 0;
+int num_of_accepted = 0;
+
+void close_conn(struct hsevent *event) {
+  hsevent_base_update(EPOLL_CTL_DEL, event, event->event_base);
+  close(event->sockfd);
+  num_of_conn--;
+  if (num_of_accepted == MAX_CONN_NUM && num_of_conn == 0) {
+    hsevent_base_exit(event->event_base);
+  }
+  hsevent_free(event);
+}
+
 void echo(struct hsevent *event) {
   hsbuffer_recv(event->sockfd, event->inbound, HS_BUFFER_SIZE);
   assert(hsbuffer_length(event->inbound) != 0);
@@ -15,11 +31,12 @@ void echo(struct hsevent *event) {
 }
 
 void accept_conn(struct hsevent *event) {
-  printf("New connection arrived.\n");
   int conn_sockfd = accept(event->sockfd, NULL, NULL);
-
-  struct hsevent *new_event = hsevent_init(conn_sockfd, EPOLLIN, event->event_base);
+  num_of_conn++;
+  num_of_accepted++;
+  struct hsevent *new_event = hsevent_init(conn_sockfd, EPOLLIN|EPOLLRDHUP, event->event_base);
   hsevent_update_cb(new_event, HSEVENT_READ, echo);
+  hsevent_update_cb(new_event, HSEVENT_RDHUP, close_conn);
 }
 
 int main() {
@@ -28,12 +45,12 @@ int main() {
   /* Create socket */
   int i = 1;
   int serv_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-  setsockopt(serv_sockfd, SOL_SOCKET, SO_REUSEPORT, &i, 0);
+  setsockopt(serv_sockfd, SOL_SOCKET, SO_REUSEPORT, &i, sizeof(int));
   struct sockaddr_in servaddr;
   memset(&servaddr, 0, sizeof(struct sockaddr_in));
   servaddr.sin_family = AF_INET;
   servaddr.sin_addr.s_addr = INADDR_ANY;
-  servaddr.sin_port = htons(9999);
+  servaddr.sin_port = htons(10001);
   bind(serv_sockfd, (struct sockaddr*)&servaddr, sizeof(servaddr));
   listen(serv_sockfd, 16);
 
@@ -41,6 +58,9 @@ int main() {
   struct hsevent *listen_event = hsevent_init(serv_sockfd, EPOLLIN, base);
   hsevent_update_cb(listen_event, HSEVENT_READ, accept_conn);
   hsevent_base_loop(base);
+
+  hsevent_free(listen_event);
+  hsevent_base_free(base);
 
   return 0;
 }
