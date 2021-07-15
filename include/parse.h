@@ -30,7 +30,7 @@ typedef struct
 {
 	char http_version[16];
 	char http_method[16];
-	char http_uri[1024];
+	char http_uri[256];
 	Request_header *headers;
 	int header_count;
   int header_capacity;
@@ -53,6 +53,11 @@ typedef struct
  * @return A flag indicating whether the parsing was successful.
  */
 int parse(char *buffer, int size, Request **request);
+
+/**
+ * @brief Free the memory allocated by parse().
+ */
+void parse_free(Request *request);
 
 int yyparse();
 void set_parsing_options(char *buf, size_t i, Request *request);

@@ -9,7 +9,7 @@
 %{
 #include "parse.h"
 
-/* Define YACCDEBUG to enable debug messages for this lex file */
+/* Define YACCDEBUG to enable debug messages for this yacc file */
 //#define YACCDEBUG
 #define YYERROR_VERBOSE
 #ifdef YACCDEBUG
@@ -202,18 +202,25 @@ t_ws {
 /*
  * Rule 6: Request line and request header fields
  */
-
 request_line: token t_sp text t_sp text t_crlf {
 	YPRINTF("request_Line:\n%s\n%s\n%s\n",$1, $3,$5);
-    strcpy(parsing_request->http_method, $1);
-	strcpy(parsing_request->http_uri, $3);
-	strcpy(parsing_request->http_version, $5);
+	size_t token_size = (strlen($1) < 15 ? strlen($1) : 15);
+  strncpy(parsing_request->http_method, $1, token_size + 1);
+
+	token_size = (strlen($3) < 255 ? strlen($3) : 255);
+	strncpy(parsing_request->http_uri, $3, token_size + 1);
+
+	token_size = (strlen($5) < 15 ? strlen($5) : 15);
+	strncpy(parsing_request->http_version, $5, token_size + 1);
 }
 
 request_header: token ows t_colon ows text ows t_crlf {
 	YPRINTF("request_Header:\n%s\n%s\n",$1,$5);
-  strcpy(parsing_request->headers[parsing_request->header_count].header_name, $1);
-	strcpy(parsing_request->headers[parsing_request->header_count].header_value, $5);
+	size_t token_size = (strlen($1) < 127 ? strlen($1) : 127);
+  strncpy(parsing_request->headers[parsing_request->header_count].header_name, $1, token_size + 1);
+
+	token_size = (strlen($5) < 255 ? strlen($5) : 255);
+	strncpy(parsing_request->headers[parsing_request->header_count].header_value, $5, token_size + 1);
 	parsing_request->header_count++;
 	if (parsing_request->header_count == parsing_request->header_capacity) {
 		int capacity = (parsing_request->header_capacity *= 2);

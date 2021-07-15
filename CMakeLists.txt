@@ -5,9 +5,6 @@ project(httpserver)
 # Modify include paths
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-# Use cppcheck to start static program analysis.
-include(cmake/cppcheck.cmake)
-
 # Set the Compilation options
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wextra")
 
@@ -15,6 +12,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror -Wextra")
 set(CMAKE_DEBUG_C_FLAGS "-fsanitize=address -O1 -fno-omit-frame-pointer")
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_DEBUG_C_FLAGS}")
+  set(CMAKE_VERBOSE_MAKEFILE ON)
 endif()
 
 # Set the compilation options for code coverage

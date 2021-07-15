@@ -24,6 +24,9 @@
 #define LPRINTF(...)
 #endif
 
+#define YY_NO_UNPUT
+#define YY_NO_INPUT
+
 #undef YY_INPUT
 /*
  * yylex() by default takes input from stdin. You might be wondering how
@@ -40,7 +43,7 @@
 
 /* We need some global state (must be defined in parser.y) */
 extern char *parsing_buf;	/* The buffer to read the data from */
-extern size_t parsing_buf_siz;	/* Size of the buffer */
+extern int parsing_buf_siz;	/* Size of the buffer */
 extern int parsing_offset;	/* Current offset in the buffer */
 
 #define MIN(__a, __b) (((__a) < (__b)) ? (__a) : (__b))

@@ -67,3 +67,13 @@ int parse(char *buffer, int size, Request **request) {
 	}
 	return HSPARSE_INCOMPLETE;
 }
+
+void parse_free(Request *request) {
+	if (!request) {
+		return ;
+	}
+	if (request->headers) {
+		free(request->headers);
+	}
+	free(request);
+}
