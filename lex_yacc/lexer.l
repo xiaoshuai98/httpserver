@@ -6,6 +6,8 @@
  * section 2: Notational Conventions and Generic Grammar.
  *
  * @author Rajul Bhatnagar (2016)
+ *
+ * Modified by Quan.Dashuai
  */
 
 %{
