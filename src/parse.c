@@ -53,6 +53,7 @@ int parse(char *buffer, int size, Request **request) {
 	if (state == STATE_CRLFCRLF) {
 		*request = (Request *) malloc(sizeof(Request));
     (*request)->header_count = 0;
+		(*request)->header_capacity = 4;
     (*request)->headers = (Request_header *)malloc(sizeof(Request_header) * 4);
 		set_parsing_options(buf, i, *request);
 
