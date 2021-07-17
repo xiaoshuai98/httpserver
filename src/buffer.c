@@ -8,8 +8,8 @@
 #include "buffer.h"
 #include "utils.h"
 
-#include "stdlib.h"
-#include "sys/socket.h"
+#include <stdlib.h>
+#include <sys/socket.h>
 
 struct hsbuffer {
   char* data;           // Point to the memory allocated for the hsbuffer

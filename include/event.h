@@ -33,7 +33,6 @@
  * Some functions require a pointer to hsevent as parameter, 
  * and the caller should be responsible for checking whether this pointer is legal.
  */
-
 struct hsevent;
 
 typedef void (*hsevent_cb)(struct hsevent *event);
@@ -126,6 +125,11 @@ void hsevent_base_free(struct hsevent_base *event_base);
 void hsevent_base_update(int op, 
                          struct hsevent *event,
                          struct hsevent_base *event_base);
+
+/**
+ * @brief Clear all registered struct event of struct hsevent_base.
+ */
+void hsevent_base_clear(struct hsevent_base *base);
 
 /**
  * @brief Start the event loop.

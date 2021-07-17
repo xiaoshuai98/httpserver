@@ -11,9 +11,9 @@
 #ifndef HS_BUFFER
 #define HS_BUFFER
 
-#include "stddef.h"
-#include "sys/types.h"
-#include "stdint.h"
+#include <stddef.h>
+#include <sys/types.h>
+#include <stdint.h>
 
 #define READ_POS 0
 #define WRITE_POS 1

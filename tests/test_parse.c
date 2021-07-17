@@ -1,7 +1,7 @@
 #include "parse.h"
 
-#include "string.h"
-#include "assert.h"
+#include <string.h>
+#include <assert.h>
 
 int main() {
   Request *request = NULL;

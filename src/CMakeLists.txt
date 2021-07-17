@@ -1,4 +1,11 @@
-file (GLOB LIB_SOURCES "*.c" "lex.yy.c" "parser.tab.c")
+file (GLOB LIB_SOURCES 
+      "buffer.c"
+      "event.c"
+      "parse.c"
+      "utils.c" 
+      "event_handler.c"
+      "lex.yy.c" 
+      "parser.tab.c")
 
 add_library (httpserver STATIC ${LIB_SOURCES})
 

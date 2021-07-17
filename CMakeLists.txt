@@ -30,3 +30,7 @@ include(cmake/ctest.cmake)
 if (CMAKE_C_COVERAGE)
   include(cmake/coverage.cmake)
 endif()
+
+add_executable(server server.c)
+
+target_link_libraries(server PUBLIC httpserver)
