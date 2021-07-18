@@ -17,17 +17,20 @@ endif()
 
 # Set the compilation options for code coverage
 option(CMAKE_C_COVERAGE "Enable Code Coverage" ON)
-if (CMAKE_C_COVERAGE)
+if (CMAKE_C_COVERAGE AND ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -coverage")
 endif()
 
 # Compile the test program
 add_subdirectory(src/)
-add_subdirectory(tests/)
+
+if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+  add_subdirectory(tests/)
+endif()
 
 # Generate targets for ctest and code coverage
 include(cmake/ctest.cmake)
-if (CMAKE_C_COVERAGE)
+if (CMAKE_C_COVERAGE AND ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   include(cmake/coverage.cmake)
 endif()
 

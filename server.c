@@ -17,6 +17,17 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <errno.h>
+#include <signal.h>
+#include <stdio.h>
+
+struct hsevent_base *base;
+
+void sig_handler(int signo) {
+  printf("%d\n", signo);
+  hsevent_base_clear(base);
+  hsevent_base_free(base);
+  exit(0);
+}
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -58,16 +69,18 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  struct hsevent_base *base = hsevent_base_init();
+  signal(SIGINT, sig_handler);
+
+  base = hsevent_base_init();
+
   int serv_sockfd = hssocket(http_port);
   set_nonblocking(serv_sockfd);
+  int i = 1;
+  setsockopt(serv_sockfd, SOL_SOCKET, SO_REUSEPORT, &i, sizeof(int));
   struct hsevent *listen_event = hsevent_init(serv_sockfd, EPOLLIN | EPOLLET, base);
   hsevent_update_cb(listen_event, HSEVENT_READ, accept_conn);
 
   hsevent_base_loop(base);
-
-  hsevent_base_clear(base);
-  hsevent_base_free(base);
 
   exit(0);
 }

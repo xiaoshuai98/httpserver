@@ -24,12 +24,12 @@
  * @brief A buffer that can be used for network IO.
  * 
  * @details
- * httpserver should allocate an hsbuffer for every connected socket. 
+ * httpserver should allocate two hsbuffers for every connected socket. 
  * The socket can only perform IO on hsbuffer, and it is better to use hsbuffer's IO functions.
  * 
  * @note
  * All functions require a pointer to hsbuffer as parameter, 
- * and the caller should be responsible for checking whether this pointer is legal.
+ * and the caller should be responsible for checking whether the pointer is legal.
  */
 struct hsbuffer;
 
@@ -132,6 +132,22 @@ ssize_t hsbuffer_send(int sockfd, struct hsbuffer *ptr, size_t length);
  * @param[in] new_capacity The new capacity after increasing the hsbuffer.
  */
 void hsbuffer_expand(struct hsbuffer *ptr, size_t new_capacity);
+
+/**
+ * @brief Copy a string.
+ * 
+ * @details
+ * Copy the first length characters of the string pointed to by src 
+ * to the hsbuffer pointed to by ptr.
+ * 
+ * @note
+ * It is the caller's responsibility to check for out-of-bounds.
+ * 
+ * @param[in] ptr A pointer to the allocated hsbuffer.
+ * @param[in] src A pointer to the source buffer.
+ * @param[in] length The length of the copied string.
+ */
+void hsbuffer_ncpy(struct hsbuffer *ptr, const char *src, size_t length);
 
 /**
  * @brief Consume the readable space in the hsbuffer pointed by ptr.

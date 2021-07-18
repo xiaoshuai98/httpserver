@@ -56,7 +56,7 @@ int hssocket(int port) {
   memset(&servaddr, 0, sizeof(struct sockaddr_in));
   servaddr.sin_family = AF_INET;
   servaddr.sin_addr.s_addr = INADDR_ANY;
-  servaddr.sin_port = port;
+  servaddr.sin_port = htons(port);
   bind(sockfd, (struct sockaddr*)&servaddr, sizeof(struct sockaddr_in));
   listen(sockfd, 1024);
 

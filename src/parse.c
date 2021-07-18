@@ -7,7 +7,9 @@
 
 #include "parse.h"
 
-int parse(char *buffer, int size, Request **request) {
+#include <string.h>
+
+int parse(char *buffer, int *size, Request **request) {
   // Differant states in the state machine
 	enum {
 		STATE_START = 0, STATE_CR, STATE_CRLF, STATE_CRLFCR, STATE_CRLFCRLF
@@ -23,7 +25,7 @@ int parse(char *buffer, int size, Request **request) {
 	while (state != STATE_CRLFCRLF) {
 		char expected = 0;
 
-		if (i == size)
+		if (i == *size)
 			break;
 
 		ch = buffer[i++];
@@ -57,6 +59,7 @@ int parse(char *buffer, int size, Request **request) {
     (*request)->headers = (Request_header *)malloc(sizeof(Request_header) * 4);
 		set_parsing_options(buf, i, *request);
 
+		*size = i;
 		if (yyparse() == HSPARSE_VALID) {
       return HSPARSE_VALID;
 		} else {
@@ -66,7 +69,17 @@ int parse(char *buffer, int size, Request **request) {
       return HSPARSE_INVALID;
     }
 	}
+	*size = 0;
 	return HSPARSE_INCOMPLETE;
+}
+
+Request_header* find_key(Request *request, const char *key) {
+	for (int i = 0; i < request->header_count; i++) {
+		if (!strcmp(request->headers[i].header_name, key)) {
+			return &request->headers[i];
+		}
+	}
+	return NULL;
 }
 
 void parse_free(Request *request) {

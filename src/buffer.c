@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 #include <sys/socket.h>
+#include <string.h>
 
 struct hsbuffer {
   char* data;           // Point to the memory allocated for the hsbuffer
@@ -116,6 +117,11 @@ void hsbuffer_expand(struct hsbuffer *ptr, size_t new_capacity) {
     ptr->data = new_data;
     ptr->capacity = new_capacity;
   } 
+}
+
+void hsbuffer_ncpy(struct hsbuffer *ptr, const char *src, size_t length) {
+  strncpy(hsbuffer_pos(ptr, WRITE_POS), src, length);
+  ptr->write_pos += length;
 }
 
 void hsbuffer_consume(struct hsbuffer *ptr, size_t length) {

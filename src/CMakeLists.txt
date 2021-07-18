@@ -4,6 +4,7 @@ file (GLOB LIB_SOURCES
       "parse.c"
       "utils.c" 
       "event_handler.c"
+      "response.c"
       "lex.yy.c" 
       "parser.tab.c")
 

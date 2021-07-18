@@ -20,9 +20,9 @@
 void accept_conn(struct hsevent *event);
 
 /**
- * @brief Unregister an event, and close the connection.
+ * @brief Responding to rdhup event.
  */
-void close_conn(struct hsevent *event);
+void rdhup_conn(struct hsevent *event);
 
 /**
  * @brief Responding to read-ready event.

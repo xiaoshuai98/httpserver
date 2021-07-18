@@ -11,12 +11,13 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define MAXFD 1024
+#define MAXFD 1028
 
 struct hsevent_base {
   int epollfd;
   struct epoll_event activate_events[MAXFD];
   struct hsevent *sockets[MAXFD];
+  int num_of_events;
   int exit; // For debug
 };
 
@@ -35,6 +36,7 @@ struct hsevent* hsevent_init(int sockfd, int events, struct hsevent_base *event_
   }
   event->sockfd = sockfd;
   event->events = events;
+  event->closed = 0;
   if (event->events) {
     event->event_base = event_base;
     if (event->event_base) {
@@ -110,6 +112,14 @@ void hsevent_base_update(int op, struct hsevent *event, struct hsevent_base *bas
     base->sockets[event->sockfd] = event;
   } else if (op == EPOLL_CTL_DEL) {
     base->sockets[event->sockfd] = NULL;
+  }
+}
+
+void hsevent_base_clear(struct hsevent_base *base) {
+  for (int i = 0; i < MAXFD; i++) {
+    if (base->sockets[i]) {
+      hsevent_free(base->sockets[i]);
+    }
   }
 }
 

@@ -46,13 +46,28 @@ typedef struct
  * the other is that the format is incorrect, such as a certain request header without \r\n, 
  * a response should be returned to notify this error.
  * 
+ * @note
+ * After the function returns, 
+ * [size] will be modified to the length of the complete request headers, 
+ * so that the request headers can be deleted from the buffer.
+ * 
  * @param[in] buffer A char array for storing HTTP request.
- * @param[in] size The number of bytes to be parsed.
+ * @param[in out] size The number of bytes to be parsed.
  * @param[out] request The result after parsing
  * 
  * @return A flag indicating whether the parsing was successful.
  */
-int parse(char *buffer, int size, Request **request);
+int parse(char *buffer, int *size, Request **request);
+
+/**
+ * @brief Find the request header of the specified key.
+ * 
+ * @param[in] request A pointer to the HTTP request.
+ * @param[in] key The key of the request header.
+ * 
+ * @return A pointer to HTTP request header, or NULL if failed.
+ */
+Request_header* find_key(Request *request, const char *key);
 
 /**
  * @brief Free the memory allocated by parse().
