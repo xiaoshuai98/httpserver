@@ -6,6 +6,7 @@
  */
 
 #include "utils.h"
+#include "log.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -14,6 +15,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <assert.h>
 
 int http_port = -1;
 int https_port = -1;
@@ -47,6 +49,11 @@ void process_argument(const char *option, const char *argument) {
     get_port(0, argument);
   } else if (!strcmp(option, "https")) {
     get_port(1, argument);
+  } else if (!strcmp(option, "log")) {
+    int ret = hslog_init(argument);
+    if (ret < 0) {
+      exit(-1);
+    }
   }
 }
 
@@ -55,7 +62,7 @@ int hssocket(int port) {
   struct sockaddr_in servaddr;
   memset(&servaddr, 0, sizeof(struct sockaddr_in));
   servaddr.sin_family = AF_INET;
-  servaddr.sin_addr.s_addr = INADDR_ANY;
+  servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
   servaddr.sin_port = htons(port);
   bind(sockfd, (struct sockaddr*)&servaddr, sizeof(struct sockaddr_in));
   listen(sockfd, 1024);

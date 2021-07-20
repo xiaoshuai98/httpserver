@@ -5,6 +5,7 @@ file (GLOB LIB_SOURCES
       "utils.c" 
       "event_handler.c"
       "response.c"
+      "log.c"
       "lex.yy.c" 
       "parser.tab.c")
 
@@ -14,7 +15,7 @@ if (CMAKE_C_COVERAGE)
   target_link_libraries(httpserver PUBLIC gcov)
 endif()
 
-if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-  target_compile_definitions(httpserver PUBLIC YACCDEBUG)
-  target_compile_definitions(httpserver PUBLIC LEXDEBUG)
-endif()
+# if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+#   target_compile_definitions(httpserver PUBLIC YACCDEBUG)
+#   target_compile_definitions(httpserver PUBLIC LEXDEBUG)
+# endif()

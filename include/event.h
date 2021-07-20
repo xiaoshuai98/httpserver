@@ -14,10 +14,15 @@
 
 #include "buffer.h"
 
+#include <netinet/in.h>
+#include <sys/timerfd.h>
+
 #define HSEVENT_READ  0 // EPOLLIN
 #define HSEVENT_WRITE 1 // EPOLLOUT
 #define HSEVENT_RDHUP 2 // EPOLLRDHUP
 #define HSEVENT_ERR   3 // EPOLLERR
+
+#define HSINTERVAL    30 // Default timeout(seconds)
 
 /**
  * @brief The polling unit in the event loop.
@@ -38,6 +43,8 @@ struct hsevent;
 typedef void (*hsevent_cb)(struct hsevent *event);
 struct hsevent {
   int sockfd;                       // Associated socket
+  int timerfd;                      // Timer
+  struct sockaddr_in *remote;       // Client's IP address
   struct hsbuffer *inbound;         // Input buffer, read data from socket
   struct hsbuffer *outbound;        // Output buffer, write data to socket
   uint32_t events;                  // Types of events monitored
@@ -46,7 +53,7 @@ struct hsevent {
   hsevent_cb write_cb;              // Callback function for EPOLLOUT
   hsevent_cb rdhup_cb;              // Callback function for EPOLLHUP
   hsevent_cb err_cb;                // Callback function for EPOLLERR
-  int closed;                       // Indicate whether to close the connection after sending the response.
+  int closed;                       // Indicate whether to close the connection after sending the response
 };
 
 /**

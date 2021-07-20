@@ -24,4 +24,9 @@
  */
 int create_response(struct hsevent *event, Request **request);
 
+/**
+ * @brief Generate an HTTP response to notify the peer timeout.
+ */
+void response_timeout(struct hsevent *event);
+
 #endif  // HS_RESPONSE

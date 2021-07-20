@@ -16,16 +16,30 @@
 #include <unistd.h>
 #include <errno.h>
 
+void outbound_send(struct hsevent *event) {
+  ssize_t total_written = hsbuffer_readable(event->outbound);
+  while (total_written > 0) {
+    ssize_t bytes_written = hsbuffer_send(event->sockfd, event->outbound, total_written);
+    if (bytes_written < 0) {
+      perror("send() failed");
+      break;
+    }
+    total_written -= bytes_written;
+  }
+}
+
 void close_event(struct hsevent *event) {
   hsevent_base_update(EPOLL_CTL_DEL, event, event->event_base);
   close(event->sockfd);
+  close(event->timerfd);
   hsevent_free(event);
 }
 
 void accept_conn(struct hsevent *event) {
   int conn_sockfd;
   while (1) {
-    conn_sockfd = accept(event->sockfd, 0, 0);
+    socklen_t socklen = sizeof(struct sockaddr_in);
+    conn_sockfd = accept(event->sockfd, (struct sockaddr*)event->remote, &socklen);
     if (conn_sockfd < 0) {
       if (errno == EAGAIN) {
         break;
@@ -47,13 +61,32 @@ void rdhup_conn(struct hsevent *event) {
 }
 
 void read_conn(struct hsevent *event) {
+  uint64_t timerfd_buf;
+  if (read(event->timerfd, &timerfd_buf, sizeof(uint64_t)) < 0) {
+    if (errno == EAGAIN) {
+      struct itimerspec timeout;
+      timeout.it_value.tv_nsec = 0;
+      timeout.it_value.tv_sec = HSINTERVAL;
+      timeout.it_interval.tv_nsec = 0;
+      timeout.it_interval.tv_sec = HSINTERVAL;
+      timerfd_settime(event->timerfd, 0, &timeout, NULL);
+    } else {
+      perror("timerfd");
+    }
+  } else {
+    response_timeout(event);
+    outbound_send(event);
+    close_event(event);
+    return;
+  }
+
   while (1) {
     ssize_t bytes_read = hsbuffer_recv(event->sockfd, event->inbound, hsbuffer_remain(event->inbound));
     if (bytes_read < 0) {
       if (errno == EAGAIN) {
         break;
       } else {
-        perror("recv() failed:");
+        perror("recv() failed");
       }
     }
   }
@@ -67,15 +100,7 @@ void write_conn(struct hsevent *event) {
     if (result == HSPARSE_INCOMPLETE) {
       break;
     }
-    ssize_t total_written = hsbuffer_readable(event->outbound);
-    while (total_written > 0) {
-      ssize_t bytes_written = hsbuffer_send(event->sockfd, event->outbound, total_written);
-      if (bytes_written < 0) {
-        perror("send() failed");
-        break;
-      }
-      total_written -= bytes_written;
-    }
+    outbound_send(event);
 
     parse_free(request);
   }

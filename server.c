@@ -23,7 +23,7 @@
 struct hsevent_base *base;
 
 void sig_handler(int signo) {
-  printf("%d\n", signo);
+  printf("signo: %d\n", signo);
   hsevent_base_clear(base);
   hsevent_base_free(base);
   exit(0);
@@ -78,6 +78,13 @@ int main(int argc, char *argv[]) {
   int i = 1;
   setsockopt(serv_sockfd, SOL_SOCKET, SO_REUSEPORT, &i, sizeof(int));
   struct hsevent *listen_event = hsevent_init(serv_sockfd, EPOLLIN | EPOLLET, base);
+  
+  /* Disarm listen_event's timer */
+  struct itimerspec timeout;
+  timeout.it_value.tv_nsec = 0;
+  timeout.it_value.tv_sec = 0;
+  timerfd_settime(listen_event->timerfd, 0, &timeout, NULL);
+
   hsevent_update_cb(listen_event, HSEVENT_READ, accept_conn);
 
   hsevent_base_loop(base);

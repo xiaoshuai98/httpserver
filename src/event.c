@@ -37,6 +37,14 @@ struct hsevent* hsevent_init(int sockfd, int events, struct hsevent_base *event_
   event->sockfd = sockfd;
   event->events = events;
   event->closed = 0;
+  event->remote = (struct sockaddr_in*)malloc(sizeof(struct sockaddr_in));
+  event->timerfd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK);
+  struct itimerspec timeout;
+  timeout.it_value.tv_nsec = 0;
+  timeout.it_value.tv_sec = HSINTERVAL;
+  timeout.it_interval.tv_nsec = 0;
+  timeout.it_interval.tv_sec = HSINTERVAL;
+  timerfd_settime(event->timerfd, 0, &timeout, NULL);
   if (event->events) {
     event->event_base = event_base;
     if (event->event_base) {
@@ -50,6 +58,7 @@ struct hsevent* hsevent_init(int sockfd, int events, struct hsevent_base *event_
 void hsevent_free(struct hsevent *event) {
   hsbuffer_free(event->inbound);
   hsbuffer_free(event->outbound);
+  free(event->remote);
   free(event);
 }
 
@@ -104,21 +113,29 @@ void hsevent_base_free(struct hsevent_base *base) {
 }
 
 void hsevent_base_update(int op, struct hsevent *event, struct hsevent_base *base) {
-  struct epoll_event ev;
+  struct epoll_event ev, timerev;
   ev.events = event->events;
   ev.data.fd = event->sockfd;
+  timerev.events = EPOLLIN;
+  timerev.data.fd = event->timerfd;
   epoll_ctl(base->epollfd, op, event->sockfd, &ev);
+  epoll_ctl(base->epollfd, op, event->timerfd, &timerev);
   if (op == EPOLL_CTL_ADD) {
     base->sockets[event->sockfd] = event;
+    base->sockets[event->timerfd] = event;
   } else if (op == EPOLL_CTL_DEL) {
     base->sockets[event->sockfd] = NULL;
+    base->sockets[event->timerfd] = NULL;
   }
 }
 
 void hsevent_base_clear(struct hsevent_base *base) {
   for (int i = 0; i < MAXFD; i++) {
     if (base->sockets[i]) {
-      hsevent_free(base->sockets[i]);
+      struct hsevent *event = base->sockets[i];
+      base->sockets[event->sockfd] = NULL;
+      base->sockets[event->timerfd] = NULL;
+      hsevent_free(event);
     }
   }
 }

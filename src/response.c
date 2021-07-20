@@ -7,10 +7,12 @@
 
 #include "response.h"
 #include "buffer.h"
+#include "log.h"
 
 const char *ok = "HTTP/1.1 200 OK\r\n";
 const char *bad_request = "HTTP/1.1 400 Bad Request\r\n";
 const char *not_implemented = "HTTP/1.1 501 Not Implemented\r\n";
+const char *request_timeout = "HTTP/1.1 408 Request Timeout\r\n";
 
 const char *server = "Server: Knight/1.0\r\n";
 const char *conn_close = "Connection: Close\r\n";
@@ -18,6 +20,13 @@ const char *conn_keep = "Connection: Keep-Alive\r\n";
 
 void response_ending(struct hsevent *event) {
   hsbuffer_ncpy(event->outbound, "\r\n", 2);
+}
+
+void response_timeout(struct hsevent *event) {
+  hsbuffer_ncpy(event->outbound, request_timeout, strlen(request_timeout));
+  hsbuffer_ncpy(event->outbound, server, strlen(server));
+  hsbuffer_ncpy(event->outbound, "Content-Length: 0\r\n", 19);
+  response_ending(event);
 }
 
 void response_server_conn(struct hsevent *event, Request *request) {
@@ -43,6 +52,7 @@ void response_get(struct hsevent *event, Request *request) {
   response_server_conn(event, request);
   hsbuffer_ncpy(event->outbound, "Content-Length: 0\r\n", 19);
   response_ending(event);
+  hslog_log(event->remote, request, 200, 0);
 }
 
 void response_post(struct hsevent *event, Request *request) {
