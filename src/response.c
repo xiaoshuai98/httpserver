@@ -69,7 +69,7 @@ int find_type(Request *request) {
 }
 
 void find_file(struct hsevent *event, Request *request, int *fd, size_t *length) {
-  strcat(file_path + initial_length, request->http_uri);
+  strcat(file_path, request->http_uri);
   *fd = open(file_path, O_RDONLY);
   file_path[initial_length] = '\0'; // remove the uri
   int status;

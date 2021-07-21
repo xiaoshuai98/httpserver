@@ -15,7 +15,6 @@
 #include "event.h"
 
 extern char file_path[256];
-extern int initial_length;
 
 /**
  * @brief Parse event->inbound and write the response to event->outbound.
