@@ -74,7 +74,7 @@ int parse(char *buffer, int *size, Request **request) {
 }
 
 Request_header* find_key(Request *request, const char *key) {
-	for (int i = 0; i < request->header_count; i++) {
+	for (int i = 0; request && i < request->header_count; i++) {
 		if (!strcmp(request->headers[i].header_name, key)) {
 			return &request->headers[i];
 		}

@@ -15,6 +15,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <errno.h>
+#include <sys/sendfile.h>
 
 void outbound_send(struct hsevent *event) {
   ssize_t total_written = hsbuffer_readable(event->outbound);
@@ -95,14 +96,17 @@ void read_conn(struct hsevent *event) {
 
 void write_conn(struct hsevent *event) {
   while (hsbuffer_readable(event->inbound)) {
-    Request *request;
-    int result = create_response(event, &request);
+    int fd;
+    size_t file_length;
+    int result = create_response(event, &fd, &file_length);
     if (result == HSPARSE_INCOMPLETE) {
       break;
     }
     outbound_send(event);
-
-    parse_free(request);
+    if (fd > 0) {
+      sendfile(event->sockfd, fd, 0, file_length);
+      close(fd);
+    }
   }
 
   if (event->closed) {

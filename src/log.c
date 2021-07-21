@@ -43,8 +43,6 @@ void hslog_log(struct sockaddr_in *remote, Request *request, int status, int len
   inet_ntop(AF_INET, &remote->sin_addr, logbuf, INET_ADDRSTRLEN);
   used_length += (INET_ADDRSTRLEN - 1);
 
-  assert(request);
-
   /* Log identd and uesrid */
   snprintf(logbuf + used_length, 5, " - -");
   used_length += 4;
@@ -58,13 +56,15 @@ void hslog_log(struct sockaddr_in *remote, Request *request, int status, int len
   used_length += 29;
 
   /* Log the request line */
-  size_t total_line = 5 + strlen(request->http_method) + strlen(request->http_uri) + strlen(request->http_version); 
-  snprintf(logbuf + used_length, total_line + 1,
-                                 " \"%s %s %s\"",
-                                 request->http_method,
-                                 request->http_uri,
-                                 request->http_version);
-  used_length += total_line;
+  if (request) {
+    size_t total_line = 5 + strlen(request->http_method) + strlen(request->http_uri) + strlen(request->http_version); 
+    snprintf(logbuf + used_length, total_line + 1,
+                                   " \"%s %s %s\"",
+                                   request->http_method,
+                                   request->http_uri,
+                                   request->http_version);
+    used_length += total_line;
+  }
 
   /* Log status code and length of content */
   sprintf(logbuf + used_length, " %d %d\n", status, length);

@@ -7,6 +7,7 @@
 
 #include "utils.h"
 #include "log.h"
+#include "response.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -42,6 +43,11 @@ void get_port(int server_type, const char *argument) {
   }
 }
 
+void get_folder(const char *argument) {
+  strncpy(file_path, argument, strlen(argument));
+  initial_length = strlen(argument);
+}
+
 void process_argument(const char *option, const char *argument) {
   if (!strcmp(option, "help")) {
     print_help();
@@ -54,6 +60,8 @@ void process_argument(const char *option, const char *argument) {
     if (ret < 0) {
       exit(-1);
     }
+  } else if (!strcmp(option, "www")) {
+    get_folder(argument);
   }
 }
 
