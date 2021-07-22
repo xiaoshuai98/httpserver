@@ -15,12 +15,14 @@
 #include "event.h"
 
 extern char file_path[256];
+extern int initial_length;
 
 /**
  * @brief Parse event->inbound and write the response to event->outbound.
  * 
  * @param[in] event The target of parsing and generating response.
  * @param[out] fd The fd of the requested object in the HTTP request.
+ * @param[out] file_length The length of the requested object in the HTTP request.
  * 
  * @details
  * If opening the requested object fails, [fd] will be set to -1.

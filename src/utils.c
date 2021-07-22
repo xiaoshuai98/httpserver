@@ -45,6 +45,7 @@ void get_port(int server_type, const char *argument) {
 
 void get_folder(const char *argument) {
   strncpy(file_path, argument, strlen(argument));
+  initial_length = strlen(file_path);
 }
 
 void process_argument(const char *option, const char *argument) {
