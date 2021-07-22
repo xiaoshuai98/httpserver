@@ -44,8 +44,12 @@ void accept_conn(struct hsevent *event) {
     if (conn_sockfd < 0) {
       if (errno == EAGAIN) {
         break;
+      } else if (errno == EMFILE) {
+        //! Starvation
+        return ;
       } else {
-        perror("accept() failed:");
+        perror("accept() failed");
+        abort();
       }
     } else {
       set_nonblocking(conn_sockfd);
@@ -82,6 +86,10 @@ void read_conn(struct hsevent *event) {
   }
 
   while (1) {
+    size_t remain = hsbuffer_remain(event->inbound);
+    if (remain == 0) {
+      hsbuffer_expand(event->inbound, hsbuffer_capacity(event->inbound) * 2);
+    }
     ssize_t bytes_read = hsbuffer_recv(event->sockfd, event->inbound, hsbuffer_remain(event->inbound));
     if (bytes_read < 0) {
       if (errno == EAGAIN) {

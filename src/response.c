@@ -17,6 +17,9 @@
 char file_path[256];
 int initial_length;
 
+int cur_entity_length = 0;
+int fetched_entity_length = 0;
+
 const char *ok = "HTTP/1.1 200 OK\r\n";
 const char *bad_request = "HTTP/1.1 400 Bad Request\r\n";
 const char *not_exist = "HTTP/1.1 404 Not Found\r\n";
@@ -81,7 +84,7 @@ void find_file(struct hsevent *event, Request *request, int *fd, size_t *length)
       hsbuffer_ncpy(event->outbound, not_exist, strlen(not_exist));
       status = 404;
     }
-    hsbuffer_ncpy(event->outbound, "Content-Length: 0\r\n", 19);
+    hsbuffer_ncpy(event->outbound, "Content-length: 0\r\n", 19);
     *length = 0;
     hslog_log(event->remote, request, status, (int)*length);
   } else {
@@ -89,7 +92,7 @@ void find_file(struct hsevent *event, Request *request, int *fd, size_t *length)
     char buf[128];
 
     int index = find_type(request); 
-    snprintf(buf, 128, "Content-Type: %s\r\n", mime_type[index]);
+    snprintf(buf, 128, "Content-type: %s\r\n", mime_type[index]);
     hsbuffer_ncpy(event->outbound, buf, strlen(buf));
   }
 }
@@ -97,7 +100,7 @@ void find_file(struct hsevent *event, Request *request, int *fd, size_t *length)
 void response_timeout(struct hsevent *event) {
   hsbuffer_ncpy(event->outbound, request_timeout, strlen(request_timeout));
   hsbuffer_ncpy(event->outbound, server, strlen(server));
-  hsbuffer_ncpy(event->outbound, "Content-Length: 0\r\n", 19);
+  hsbuffer_ncpy(event->outbound, "Content-length: 0\r\n", 19);
   response_ending(event);
   hslog_log(event->remote, NULL, 408, 0);
 }
@@ -127,7 +130,7 @@ int response_badversion(struct hsevent *event, Request *request) {
   } else {
     hsbuffer_ncpy(event->outbound, bad_version, strlen(bad_version));
     response_server_conn(event, request);
-    hsbuffer_ncpy(event->outbound, "Content-Length: 0\r\n", 19);
+    hsbuffer_ncpy(event->outbound, "Content-length: 0\r\n", 19);
     response_ending(event);
     hslog_log(event->remote, request, 505, 0);
   }
@@ -137,7 +140,7 @@ int response_badversion(struct hsevent *event, Request *request) {
 void response_head(struct hsevent *event, Request *request, int *fd, size_t *length) {
   find_file(event, request, fd, length);
   if (*fd > 0) {
-    hsbuffer_ncpy(event->outbound, "Content-Length: 0\r\n", 19);
+    hsbuffer_ncpy(event->outbound, "Content-length: 0\r\n", 19);
     hslog_log(event->remote, request, 200, 0);
     *fd = -1; // Don't let write_conn() send file.
   }
@@ -152,7 +155,7 @@ void response_get(struct hsevent *event, Request *request, int *fd, size_t *leng
     struct stat file_stat;
     fstat(*fd, &file_stat);
     *length = file_stat.st_size;
-    snprintf(buf, 128, "Content-Length: %ld\r\n", *length);
+    snprintf(buf, 128, "Content-length: %ld\r\n", *length);
     hsbuffer_ncpy(event->outbound, buf, strlen(buf));
     hslog_log(event->remote, request, 200, (int)*length);
   }
@@ -163,14 +166,14 @@ void response_get(struct hsevent *event, Request *request, int *fd, size_t *leng
 void response_post(struct hsevent *event, Request *request) {
   hsbuffer_ncpy(event->outbound, not_implemented, strlen(not_implemented));
   response_server_conn(event, request);
-  hsbuffer_ncpy(event->outbound, "Content-Length: 0\r\n", 19);
+  hsbuffer_ncpy(event->outbound, "Content-length: 0\r\n", 19);
   response_ending(event);
 }
 
 void response_other_method(struct hsevent *event, Request *request) {
   hsbuffer_ncpy(event->outbound, not_implemented, strlen(not_implemented));
   response_server_conn(event, request);
-  hsbuffer_ncpy(event->outbound, "Content-Length: 0\r\n", 19);
+  hsbuffer_ncpy(event->outbound, "Content-length: 0\r\n", 19);
   response_ending(event);
   hslog_log(event->remote, request, 501, 0);
 }
@@ -190,9 +193,31 @@ void response_method(struct hsevent *event, Request *request, int *fd, size_t *l
 void response_invalid(struct hsevent *event, Request *request) {
   hsbuffer_ncpy(event->outbound, bad_request, strlen(bad_request));
   response_server_conn(event, request);
-  hsbuffer_ncpy(event->outbound, "Content-Length: 0\r\n", 19);
+  hsbuffer_ncpy(event->outbound, "Content-length: 0\r\n", 19);
   response_ending(event);
   hslog_log(event->remote, request, 400, 0);
+}
+
+/**
+ * @return 1 means a entity of the required length has been detected, and 0 means not yet.
+ */
+int fetch_entitybody(struct hsevent *event, Request *request) {
+  if (request) {
+    for (int i = 0; i < request->header_count; i++) {
+      if (!strcmp(request->headers[i].header_name, "Content-length")) {
+        cur_entity_length = atoi(request->headers[i].header_value);
+        break;
+      }
+    }
+  }
+  int readable = (int)hsbuffer_readable(event->inbound);
+  int need = cur_entity_length - fetched_entity_length;
+  fetched_entity_length += (readable > need ? need : readable);
+  if (fetched_entity_length == cur_entity_length) {
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 int create_response(struct hsevent *event, int *fd, size_t *file_length) {
@@ -202,14 +227,22 @@ int create_response(struct hsevent *event, int *fd, size_t *file_length) {
   hsbuffer_consume(event->inbound, (size_t)size);
   if (result == HSPARSE_VALID) {
     if (!response_badversion(event, request)) {
-      response_method(event, request, fd, file_length);
+      if (fetch_entitybody(event, request)) {
+        hsbuffer_consume(event->inbound, cur_entity_length);
+        cur_entity_length = 0;
+        fetched_entity_length = 0;
+        response_method(event, request, fd, file_length);
+      }
     }
     parse_free(request);
   } else if (result == HSPARSE_INVALID) {
     response_invalid(event, request);
   } else {
-    if (hsbuffer_remain(event->inbound) < 256) {
-      hsbuffer_expand(event->inbound, hsbuffer_capacity(event->inbound) * 2);
+    if (fetch_entitybody(event, NULL)) {
+      cur_entity_length = 0;
+      fetched_entity_length = 0;
+      hsbuffer_consume(event->inbound, cur_entity_length);
+      response_method(event, request, fd, file_length);
     }
   }
 
