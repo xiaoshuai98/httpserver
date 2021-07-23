@@ -43,11 +43,6 @@ void get_port(int server_type, const char *argument) {
   }
 }
 
-void get_folder(const char *argument) {
-  strncpy(file_path, argument, 255);
-  initial_length = strlen(file_path);
-}
-
 void process_argument(const char *option, const char *argument) {
   if (!strcmp(option, "help")) {
     print_help();
@@ -61,7 +56,11 @@ void process_argument(const char *option, const char *argument) {
       exit(-1);
     }
   } else if (!strcmp(option, "www")) {
-    get_folder(argument);
+    strncpy(file_path, argument, 255);
+    initial_length = strlen(file_path);
+  } else if (!strcmp(option, "cgi")) {
+    strncpy(cgi_folder, argument, 127);
+    cgifolder_length = strlen(cgi_folder);
   }
 }
 
@@ -81,4 +80,14 @@ int hssocket(int port) {
 void set_nonblocking(int sockfd) {
   int val = fcntl(sockfd ,F_GETFL, 0);
   fcntl(sockfd, F_SETFL, val | O_NONBLOCK);
+}
+
+void convertstr(char *str) {
+  for (int i = 0; str[i] != '\0'; i++) {
+    if (str[i] >= 'a' && str[i] <= 'z') {
+      str[i] -= 32;
+    } else if (str[i] == '-') {
+      str[i] = '_';
+    }
+  }
 }

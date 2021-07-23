@@ -17,6 +17,9 @@
 extern char file_path[256];
 extern int initial_length;
 
+extern char cgi_folder[128];
+extern int cgifolder_length;
+
 /**
  * @brief Parse event->inbound and write the response to event->outbound.
  * 

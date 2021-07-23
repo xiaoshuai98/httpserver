@@ -7,20 +7,6 @@
 
 #include "event.h"
 
-#include <sys/epoll.h>
-#include <string.h>
-#include <stdlib.h>
-
-#define MAXFD 1028
-
-struct hsevent_base {
-  int epollfd;
-  struct epoll_event activate_events[MAXFD];
-  struct hsevent *sockets[MAXFD];
-  int num_of_events;
-  int exit; // For debug
-};
-
 struct hsevent* hsevent_init(int sockfd, int events, struct hsevent_base *event_base) {
   struct hsevent *event = (struct hsevent*)malloc(sizeof(struct hsevent));
   if (event == NULL) {
@@ -36,6 +22,7 @@ struct hsevent* hsevent_init(int sockfd, int events, struct hsevent_base *event_
   }
   event->sockfd = sockfd;
   event->events = events;
+  event->pipe_rfd = -1;
   event->closed = 0;
   event->remote = (struct sockaddr_in*)malloc(sizeof(struct sockaddr_in));
   event->timerfd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK);
@@ -116,7 +103,7 @@ void hsevent_base_update(int op, struct hsevent *event, struct hsevent_base *bas
   struct epoll_event ev, timerev;
   ev.events = event->events;
   ev.data.fd = event->sockfd;
-  timerev.events = EPOLLIN;
+  timerev.events = EPOLLIN | EPOLLET;
   timerev.data.fd = event->timerfd;
   epoll_ctl(base->epollfd, op, event->sockfd, &ev);
   epoll_ctl(base->epollfd, op, event->timerfd, &timerev);
@@ -126,6 +113,7 @@ void hsevent_base_update(int op, struct hsevent *event, struct hsevent_base *bas
   } else if (op == EPOLL_CTL_DEL) {
     base->sockets[event->sockfd] = NULL;
     base->sockets[event->timerfd] = NULL;
+    base->sockets[event->pipe_rfd] = NULL;
   }
 }
 
@@ -135,6 +123,7 @@ void hsevent_base_clear(struct hsevent_base *base) {
       struct hsevent *event = base->sockets[i];
       base->sockets[event->sockfd] = NULL;
       base->sockets[event->timerfd] = NULL;
+      base->sockets[event->pipe_rfd] = NULL;
       hsevent_free(event);
     }
   }

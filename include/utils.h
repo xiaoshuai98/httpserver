@@ -36,4 +36,9 @@ int hssocket(int port);
  */
 void set_nonblocking(int sockfd);
 
+/**
+ * @brief Convert all characters of the string to cgi format.
+ */
+void convertstr(char *str);
+
 #endif  // HS_UTILS

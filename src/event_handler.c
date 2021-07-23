@@ -33,6 +33,7 @@ void close_event(struct hsevent *event) {
   hsevent_base_update(EPOLL_CTL_DEL, event, event->event_base);
   close(event->sockfd);
   close(event->timerfd);
+  close(event->pipe_rfd);
   hsevent_free(event);
 }
 
@@ -62,6 +63,7 @@ void accept_conn(struct hsevent *event) {
 }
 
 void rdhup_conn(struct hsevent *event) {
+  outbound_send(event);
   close_event(event);
 }
 
@@ -85,6 +87,28 @@ void read_conn(struct hsevent *event) {
     return;
   }
 
+  if (event->pipe_rfd != -1) {
+    while (1) {
+      char buf[512];
+      ssize_t bytes_read = read(event->pipe_rfd, buf, 512);
+      if (bytes_read < 0) {
+        if (errno == EAGAIN) {
+          event->closed = 1;
+          break;
+        } else {
+          perror("recv()");
+          break;
+        }
+      } else if (bytes_read == 0) {
+        printf("pipe closed\n");
+        event->closed = 1;
+        break;
+      } else {
+        hsbuffer_ncpy(event->outbound, buf, bytes_read + 1);
+      }
+    }
+  }
+
   while (1) {
     size_t remain = hsbuffer_remain(event->inbound);
     if (remain == 0) {
@@ -104,8 +128,8 @@ void read_conn(struct hsevent *event) {
 
 void write_conn(struct hsevent *event) {
   while (hsbuffer_readable(event->inbound)) {
-    int fd;
-    size_t file_length;
+    int fd = -1;
+    size_t file_length = -1;
     int result = create_response(event, &fd, &file_length);
     if (result == HSPARSE_INCOMPLETE) {
       break;
@@ -118,6 +142,7 @@ void write_conn(struct hsevent *event) {
   }
 
   if (event->closed) {
+    outbound_send(event);
     close_event(event);
   }
 }

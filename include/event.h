@@ -16,6 +16,9 @@
 
 #include <netinet/in.h>
 #include <sys/timerfd.h>
+#include <sys/epoll.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define HSEVENT_READ  0 // EPOLLIN
 #define HSEVENT_WRITE 1 // EPOLLOUT
@@ -23,6 +26,8 @@
 #define HSEVENT_ERR   3 // EPOLLERR
 
 #define HSINTERVAL    30 // Default timeout(seconds)
+
+#define MAXFD 1024
 
 /**
  * @brief The polling unit in the event loop.
@@ -44,6 +49,7 @@ typedef void (*hsevent_cb)(struct hsevent *event);
 struct hsevent {
   int sockfd;                       // Associated socket
   int timerfd;                      // Timer
+  int pipe_rfd;                     // Read end of pipe
   struct sockaddr_in *remote;       // Client's IP address
   struct hsbuffer *inbound;         // Input buffer, read data from socket
   struct hsbuffer *outbound;        // Output buffer, write data to socket
@@ -69,7 +75,13 @@ struct hsevent {
  * Some functions require a pointer to hsevent_base as parameter, 
  * and the caller should be responsible for checking whether this pointer is legal.
  */
-struct hsevent_base;
+struct hsevent_base {
+  int epollfd;
+  struct epoll_event activate_events[MAXFD];
+  struct hsevent *sockets[MAXFD];
+  int num_of_events;
+  int exit; // For debug
+};
 
 /**
  * @brief Initialize a hsevent.
