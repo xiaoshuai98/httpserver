@@ -21,15 +21,15 @@ if (CMAKE_C_COVERAGE AND ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -coverage")
 endif()
 
-# Compile the test program
 add_subdirectory(src/)
 
+# Compile the test program
 if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   add_subdirectory(tests/)
+  include(cmake/ctest.cmake)
 endif()
 
-# Generate targets for ctest and code coverage
-include(cmake/ctest.cmake)
+# Generate targets for code coverage
 if (CMAKE_C_COVERAGE AND ${CMAKE_BUILD_TYPE} STREQUAL "Debug")
   include(cmake/coverage.cmake)
 endif()
