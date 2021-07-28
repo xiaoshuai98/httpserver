@@ -1,4 +1,6 @@
 # httpserver
+![GitHub](https://img.shields.io/github/license/qdslovelife/httpserver)
+
 一个用C编写的可在GNU/Linux上运行的简易HTTP服务器。
 
 ## 特性
