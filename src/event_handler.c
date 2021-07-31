@@ -17,7 +17,7 @@
 #include <errno.h>
 #include <sys/sendfile.h>
 
-void outbound_send(struct hsevent *event) {
+static void outbound_send(struct hsevent *event) {
   ssize_t total_written = hsbuffer_readable(event->outbound);
   while (total_written > 0) {
     ssize_t bytes_written = hsbuffer_send(event->sockfd, event->outbound, total_written);
@@ -29,7 +29,7 @@ void outbound_send(struct hsevent *event) {
   }
 }
 
-void close_event(struct hsevent *event) {
+static void close_event(struct hsevent *event) {
   hsevent_base_update(EPOLL_CTL_DEL, event, event->event_base);
   close(event->sockfd);
   close(event->timerfd);

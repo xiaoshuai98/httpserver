@@ -21,7 +21,7 @@
 int http_port = -1;
 int https_port = -1;
 
-void print_help() {
+static void print_help() {
   printf("Usage: server [options]\n");
   printf("Option:\n");
   printf("  --help  %s\n", "Display this information.");
@@ -35,7 +35,7 @@ void print_help() {
   printf("  --certificate %s\n", "Certificate file path.");
 }
 
-void get_port(int server_type, const char *argument) {
+static void get_port(int server_type, const char *argument) {
   if (server_type == 0) {
     http_port = atoi(argument);
   } else if (server_type == 1) {
