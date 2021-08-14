@@ -42,7 +42,3 @@ Apache Bench短链接
 Apache Bench长连接
 
 ![](./image/ab长连接.png)
-
-浏览器测试
-
-![](./image/浏览器测试.png)
