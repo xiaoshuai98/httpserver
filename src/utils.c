@@ -26,13 +26,9 @@ static void print_help() {
   printf("Option:\n");
   printf("  --help  %s\n", "Display this information.");
   printf("  --http  %s\n", "The port for the HTTP (or echo) server to listen on.");
-  printf("  --https %s\n", "The port for the HTTPS server to listen on.");
   printf("  --log   %s\n", "File to send log messages to (debug, info, error).");
-  printf("  --lock  %s\n", "File to lock on when becoming a daemon process.");
   printf("  --www   %s\n", "Folder containing a tree to serve as the root of a website.");
   printf("  --cgi   %s\n", "File that should be a script where you redirect all /cgi/* URIs.");
-  printf("  --key   %s\n", "Private key file path.");
-  printf("  --certificate %s\n", "Certificate file path.");
 }
 
 static void get_port(int server_type, const char *argument) {
