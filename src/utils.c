@@ -22,7 +22,7 @@ int http_port = -1;
 int https_port = -1;
 
 static void print_help() {
-  printf("Usage: server [options]\n");
+  printf("Usage: ./server [options]\n");
   printf("Option:\n");
   printf("  --help  %s\n", "Display this information.");
   printf("  --http  %s\n", "The port for the HTTP (or echo) server to listen on.");
@@ -44,8 +44,6 @@ void process_argument(const char *option, const char *argument) {
     print_help();
   } else if (!strcmp(option, "http")) {
     get_port(0, argument);
-  } else if (!strcmp(option, "https")) {
-    get_port(1, argument);
   } else if (!strcmp(option, "log")) {
     int ret = hslog_init(argument);
     if (ret < 0) {

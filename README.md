@@ -7,11 +7,13 @@
 
 - [√] 仅支持HTTP/1.1
 - [√] 使用epoll实现并发
-- [√] 支持GET、HEAD
+- [√] 支持GET、HEAD、POST
 - [√] 支持Keep-Alive
 - [√] 支持多个状态码，包括200、400、404、408、500、501、505
 - [√] 可以处理超时连接
+- [√] 支持CGI
 - [√] 简单的日志功能(TODO：Release模式下的日志有bug)
+  - 日志格式为[Apache Log](https://httpd.apache.org/docs/2.4/logs.html)中的Common Log Format。
 
 ## 构建
 
@@ -24,14 +26,25 @@ cd build && make
 
 ``` bash
 # 在build目录下
-./server --http=9999 --log=<你的日志文件> --www=<你的静态内容的目录，末尾不加/>
+# ./server --http=9999 --log=<你的日志文件> --www=<你的静态内容的目录，末尾不加/> --cgi=<cgi目录，末尾不加/>
+./server --http=9999 --log=test.log --www=static_site --cgi=../cgi
 ```
 
-## 测试
+### 静态内容
 
-启动HTTP服务器
+![运行截图](./image/运行截图.png)
 
-![](./image/启动服务器.png)
+### CGI & POST
+
+TODO: 消除乱码。
+
+![cgi](./image/cgi.gif)
+
+### 日志
+
+![日志截图](./image/日志截图.png)
+
+## Bench
 
 Apache Bench短链接
 

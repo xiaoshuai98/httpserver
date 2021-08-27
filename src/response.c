@@ -191,15 +191,17 @@ static int response_cgi(struct hsevent *event, Request *request) {
   pid_t pid;
   int stdin_pipe[2];
   int stdout_pipe[2];
+  char script[128];
   if (pipe(stdin_pipe) || pipe(stdout_pipe)) {
     response_server_error(event, request);
     return 1;
   }
-  strcat(cgi_folder, request->http_uri);
+  strcpy(script, cgi_folder);
+  strcat(script, request->http_uri + 4);
   char environment[32][128];
   char *env[32];
   char *args[2];
-  args[0] = cgi_folder;
+  args[0] = script;
   args[1] = NULL;
   int num_of_env = 11;
   char remote_addr[17];
@@ -243,7 +245,7 @@ static int response_cgi(struct hsevent *event, Request *request) {
     dup2(stdout_pipe[1], fileno(stdout));
     close(stdin_pipe[0]);
     close(stdout_pipe[1]);
-    if (execve(cgi_folder, args, env) < 0) {
+    if (execve(script, args, env) < 0) {
       perror("execve()");
       response_server_error(event, request);
       return 1;
