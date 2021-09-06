@@ -1,5 +1,7 @@
 # httpserver
+[![CodeFactor](https://www.codefactor.io/repository/github/qdslovelife/httpserver/badge)](https://www.codefactor.io/repository/github/qdslovelife/httpserver)
 ![GitHub](https://img.shields.io/github/license/qdslovelife/httpserver)
+![GitHub last commit](https://img.shields.io/github/last-commit/qdslovelife/httpserver)
 
 一个用C编写的可在GNU/Linux上运行的简易HTTP服务器。
 
