@@ -45,12 +45,6 @@ cd build && make
 
 ![运行截图](./image/运行截图.png)
 
-### CGI & POST
-
-TODO: 消除乱码。
-
-![cgi](./image/cgi.gif)
-
 ### 日志
 
 ![日志截图](./image/日志截图.png)
