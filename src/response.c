@@ -245,7 +245,7 @@ static int response_cgi(struct hsevent *event, Request *request) {
     dup2(stdout_pipe[1], fileno(stdout));
     close(stdin_pipe[0]);
     close(stdout_pipe[1]);
-    if (execve(script, args, env) < 0) {
+    if (execve("../cgi/ascii_art.py", args, env) < 0) {
       perror("execve()");
       response_server_error(event, request);
       return 1;

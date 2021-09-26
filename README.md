@@ -10,6 +10,7 @@
   - [构建](#构建)
   - [运行](#运行)
     - [静态内容](#静态内容)
+    - [CGI](#cgi)
     - [日志](#日志)
   - [Bench](#bench)
 
@@ -37,12 +38,20 @@ cd build && make
 ``` bash
 # 在build目录下
 # ./server --http=9999 --log=<你的日志文件> --www=<你的静态内容的目录，末尾不加/> --cgi=<cgi目录，末尾不加/>
-./server --http=9999 --log=test.log --www=static_site --cgi=../cgi
+./server --http=9999 --log=test.log --www=../static_site --cgi=../cgi
 ```
 
 ### 静态内容
 
 ![运行截图](./image/运行截图.png)
+
+### CGI
+
+**Note:** 需要安装[art](https://pypi.org/project/art/).
+
+*TODO(dashuai)*: 长字符串会导致内存泄漏。
+
+![ascii-art](./image/asciiart.png)
 
 ### 日志
 
