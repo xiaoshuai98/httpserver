@@ -1,68 +1,65 @@
 # httpserver
-[![CodeFactor](https://www.codefactor.io/repository/github/qdslovelife/httpserver/badge)](https://www.codefactor.io/repository/github/qdslovelife/httpserver)
-![GitHub](https://img.shields.io/github/license/qdslovelife/httpserver)
-![GitHub last commit](https://img.shields.io/github/last-commit/qdslovelife/httpserver)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6b73a1108be14bd4b689b53b1644b989)](https://www.codacy.com/gh/qdslovelife/httpserver/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=qdslovelife/httpserver&amp;utm_campaign=Badge_Grade)
 
-一个用C编写的可在GNU/Linux上运行的简易HTTP服务器。
+A simple HTTP server written in C that runs on GNU/Linux.
 
 - [httpserver](#httpserver)
-  - [特性](#特性)
-  - [构建](#构建)
-  - [运行](#运行)
-    - [静态内容](#静态内容)
-    - [CGI](#cgi)
-    - [日志](#日志)
+  - [Feature](#feature)
+  - [Build](#build)
+  - [Run](#run)
+    - [Static page](#static-page)
+    - [CGI & POST](#cgi--post)
+    - [Log](#log)
   - [Bench](#bench)
 
-## 特性
+## Feature
 
-- [√] 仅支持HTTP/1.1
-- [√] 使用epoll实现并发
-- [√] 支持GET、HEAD、POST
-- [√] 支持Keep-Alive
-- [√] 支持多个状态码，包括200、400、404、408、500、501、505
-- [√] 可以处理超时连接
-- [√] 支持CGI
-- [√] 简单的日志功能(TODO：Release模式下的日志有bug)
-  - 日志格式为[Apache Log](https://httpd.apache.org/docs/2.4/logs.html)中的Common Log Format。
+- [√] HTTP/1.1 support only
+- [√] Using epoll for concurrency
+- [√] Support GET, HEAD, POST
+- [√] Keep-Alive support
+- [√] Support many status codes, including 200, 400, 404, 408, 500, 501, 505
+- [√] Can handle timeout connections
+- [√] CGI support
+- [√] Simple Logging
+  - The log format: [Apache Log](https://httpd.apache.org/docs/2.4/logs.html)
 
-## 构建
+## Build
 
-``` cmake
-cmake -Bbuild -DCMAKE_BUILD_TYPE=Release
+``` bash
+cmake -Bbuild -DCMAKE_BUILD_TYPE=Debug
 cd build && make
 ```
 
-## 运行
+## Run
 
 ``` bash
-# 在build目录下
-# ./server --http=9999 --log=<你的日志文件> --www=<你的静态内容的目录，末尾不加/> --cgi=<cgi目录，末尾不加/>
-./server --http=9999 --log=test.log --www=../static_site --cgi=../cgi
+cd build
+./server --http=9999 --log=test.log --www=static_site --cgi=../cgi
 ```
 
-### 静态内容
+### Static page
 
 ![运行截图](./image/运行截图.png)
 
-### CGI
+### CGI & POST
 
-**Note:** 需要安装[art](https://pypi.org/project/art/).
+TODO(dashuai): Long strings will cause memory leak.
 
-*TODO(dashuai)*: 长字符串会导致内存泄漏。
+**URL: 127.0.0.1:9999/cgi/?text=asciiart**
 
-![ascii-art](./image/asciiart.png)
+![asciiart](./image/asciiart.png)
 
-### 日志
+### Log
 
 ![日志截图](./image/日志截图.png)
 
 ## Bench
 
-Apache Bench短链接
+Apache Bench(Short Link)
 
 ![](./image/ab短连接.png)
 
-Apache Bench长连接
+Apache Bench(Long Link)
 
 ![](./image/ab长连接.png)
