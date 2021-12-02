@@ -35,7 +35,7 @@ cd build && make
 
 ``` bash
 cd build
-./server --http=9999 --log=test.log --www=static_site --cgi=../cgi
+./server --http=9999 --log=test.log --www=../static_site --cgi=../cgi
 ```
 
 ### Static page
