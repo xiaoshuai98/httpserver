@@ -1,5 +1,5 @@
 # httpserver
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/6b73a1108be14bd4b689b53b1644b989)](https://www.codacy.com/gh/qdslovelife/httpserver/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=qdslovelife/httpserver&amp;utm_campaign=Badge_Grade)
+[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/qdslovelife/httpserver.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/qdslovelife/httpserver/context:cpp)
 
 A simple HTTP server written in C that runs on GNU/Linux.
 
