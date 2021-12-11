@@ -27,7 +27,7 @@ int cgifolder_length;
 int cur_entity_length = 0;
 int fetched_entity_length = 0;
 
-const char *ok = "HTTP/1.1 200 OK\r\n";
+const char *response_ok = "HTTP/1.1 200 OK\r\n";
 const char *bad_request = "HTTP/1.1 400 Bad Request\r\n";
 const char *not_exist = "HTTP/1.1 404 Not Found\r\n";
 const char *request_timeout = "HTTP/1.1 408 Request Timeout\r\n";
@@ -96,7 +96,7 @@ static void find_file(struct hsevent *event, Request *request, int *fd, size_t *
     *length = 0;
     hslog_log(event->remote, request, status, (int)*length);
   } else {
-    hsbuffer_ncpy(event->outbound, ok, strlen(ok));
+    hsbuffer_ncpy(event->outbound, response_ok, strlen(response_ok));
     char buf[128];
 
     int index = find_type(request); 
@@ -236,7 +236,8 @@ static int response_cgi(struct hsevent *event, Request *request) {
 
   pid = fork();
   if (pid < 0) {
-
+    perrpr("fork()");
+    exit(-1);
   }
   if (pid == 0) {
     close(stdin_pipe[1]);
@@ -380,9 +381,7 @@ int create_response(struct hsevent *event, int *fd, size_t *file_length) {
     parse_free(request);
   } else if (result == HSPARSE_INVALID) {
     response_invalid(event, request);
-  } else {
-    
-  }
+  } 
 
   return result;
 }

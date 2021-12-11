@@ -1,5 +1,5 @@
 # httpserver
-[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/qdslovelife/httpserver.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/qdslovelife/httpserver/context:cpp)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/qdslovelife/httpserver.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/qdslovelife/httpserver/alerts/)
 
 A simple HTTP server written in C that runs on GNU/Linux.
 
