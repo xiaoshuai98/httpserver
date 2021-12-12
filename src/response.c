@@ -236,7 +236,7 @@ static int response_cgi(struct hsevent *event, Request *request) {
 
   pid = fork();
   if (pid < 0) {
-    perrpr("fork()");
+    perror("fork()");
     exit(-1);
   }
   if (pid == 0) {
