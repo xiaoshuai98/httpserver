@@ -1,5 +1,5 @@
 # httpserver
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/qdslovelife/httpserver.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/qdslovelife/httpserver/alerts/)
+[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/qdslovelife/httpserver.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/qdslovelife/httpserver/context:cpp)
 
 A simple HTTP server written in C that runs on GNU/Linux.
 
@@ -43,6 +43,8 @@ cd build
 ![运行截图](./image/运行截图.png)
 
 ### CGI & POST
+
+Note: You need to install art first, like `pip3 install art`.
 
 TODO(dashuai): Long strings will cause memory leak.
 

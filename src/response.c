@@ -198,7 +198,7 @@ static int response_cgi(struct hsevent *event, Request *request) {
   }
   strcpy(script, cgi_folder);
   strcat(script, request->http_uri + 4);
-  char environment[32][128];
+  char environment[32][500];
   char *env[32];
   char *args[2];
   args[0] = script;
