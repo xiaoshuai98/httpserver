@@ -10,7 +10,7 @@ A simple HTTP server written in C that runs on GNU/Linux.
     - [Static page](#static-page)
     - [CGI & POST](#cgi--post)
     - [Log](#log)
-  - [Bench](#bench)
+  - [Benchmark](#benchmark)
 
 ## Feature
 
@@ -56,7 +56,7 @@ TODO(dashuai): Long strings will cause memory leak.
 
 ![日志截图](./image/日志截图.png)
 
-## Bench
+## Benchmark
 
 Apache Bench(Short Link)
 
